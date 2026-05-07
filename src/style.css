@@ -20,6 +20,11 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-primary);
@@ -113,11 +118,26 @@ header nav {
 }
 
 .logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: var(--accent-gold);
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1001;
+  height: 60px;
+}
+
+.logo img {
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+  transition: var(--transition-smooth);
+}
+
+.logo img:hover {
+  transform: translateY(-50%) scale(1.05);
 }
 
 .nav-links {
@@ -149,6 +169,7 @@ header nav {
   background-image: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
   background-size: cover;
   background-position: center;
+  padding-top: 120px;
 }
 
 .hero-overlay {
