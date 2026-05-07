@@ -76,7 +76,7 @@ export const uploadProductImage = async (file) => {
     if (error) throw error;
 
     const { data: publicUrlData } = supabase.storage
-        .from('products')
+        .from('Products')
         .getPublicUrl(fileName);
 
     return publicUrlData.publicUrl;

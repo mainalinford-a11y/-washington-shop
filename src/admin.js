@@ -63,6 +63,7 @@ window.completeOrder = async (id) => {
     if (confirm('Mark this order as completed?')) {
         await updateOrderStatus(id, 'completed');
         window.refreshOrders();
+        window.refreshInsights(); // Update AI suggestions based on actual sales
     }
 };
 
@@ -127,9 +128,11 @@ window.refreshInsights = async () => {
     const adviceText = document.getElementById('procurement-advice');
     if (!insightsList) return;
 
-    // "AI" Logic: Count occurrences of products in orders
+    // "AI" Logic: Count occurrences of products in COMPLETED orders only
     const counts = {};
-    orders.forEach(order => {
+    const completedOrders = orders.filter(o => o.status === 'completed');
+
+    completedOrders.forEach(order => {
         // order.items is like "Primus Big (2), Burger (1) | Total: 7500 RWF"
         const itemsPart = order.items.split('|')[0];
         const itemMatches = itemsPart.match(/[^(]+(?=\s\(\d+\))/g) || [];
