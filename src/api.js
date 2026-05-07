@@ -57,7 +57,7 @@ export const getProducts = async () => {
 export const uploadProductImage = async (file) => {
     const fileName = `prod_${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
-        .from('products')
+        .from('Products')
         .upload(fileName, file);
 
     if (error) throw error;
