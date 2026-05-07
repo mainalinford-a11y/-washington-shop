@@ -26,7 +26,9 @@
       <section id="home" class="hero" style="background-image: url('./public/assets/1000267925.jpg');">
         <div class="hero-overlay"></div>
         <div class="container hero-content fade-in">
-          <div class="badge">Open Daily</div>
+          <div class="badge" style="background: rgba(230, 57, 70, 0.1); border-color: var(--accent-crimson); color: var(--accent-crimson);">
+            🌙 Open: 5:00 PM - 7:00 AM
+          </div>
           <h1>Mini Alimentation <span class="text-gold">Washington</span> & Fast Food</h1>
           <p>The finest selection of spirits, groceries, and artisanal fast food in Rwanda. From daily essentials to catered excellence.</p>
           <div class="hero-btns">
@@ -106,6 +108,27 @@
         </div>
       </section>
 
+      <!-- Gallery/Events Section (Dynamic) -->
+      <section id="gallery" class="bg-secondary">
+        <div class="container">
+          <div class="section-title">
+            <h2>Recipes & Events</h2>
+            <p>Stay updated with our latest creations and upcoming gatherings</p>
+            <div class="accent-line"></div>
+          </div>
+          <div id="dynamic-gallery" class="product-gallery">
+            <!-- Dynamically populated by main.js -->
+            <div class="product-item glass">
+              <img src="./public/assets/food_1.jpg" alt="Recipe 1" />
+              <div class="product-info">
+                <h3>Weekly Special</h3>
+                <span>Chef's Choice</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Contact Section -->
       <section id="contact">
         <div class="container">
@@ -137,13 +160,71 @@
     </main>
 
     <footer class="container">
-      <p>&copy; 2024 Mini Alimentation Washington & Fast Food. All Rights Reserved.</p>
+      <div class="footer-content">
+        <p>&copy; 2024 Mini Alimentation Washington & Fast Food. All Rights Reserved.</p>
+        <a href="login.html" class="admin-link">Admin Access</a>
+      </div>
     </footer>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="modal">
+      <div class="modal-content glass">
+        <span class="close-modal">&times;</span>
+        <h2>Place Your Order</h2>
+        <div class="badge" style="background: rgba(230, 57, 70, 0.1); border-color: var(--accent-crimson); color: var(--accent-crimson);">
+          🌙 Open: 5:00 PM - 7:00 AM
+        </div>
+        
+        <form id="order-form">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="order-name" required placeholder="John Doe">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <div class="phone-input-wrapper">
+              <span class="prefix">+250</span>
+              <input type="tel" id="order-phone" required placeholder="78X XXX XXX" pattern="[0-9]{9}">
+            </div>
+          </div>
+
+          <div class="form-group" style="position: relative;">
+            <label>Add Items to your Order</label>
+            <input type="text" id="product-search" placeholder="Type to search (e.g. Primus, Burger...)" autocomplete="off">
+            <div id="search-results" class="search-results glass" style="display: none;"></div>
+          </div>
+
+          <div class="cart-container">
+            <label>Your Basket</label>
+            <div id="cart-items" class="cart-items">
+              <p class="empty-msg">No items added yet</p>
+            </div>
+            <div class="cart-total">
+              <span>Total:</span>
+              <span id="cart-total-amount">0 RWF</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Delivery or Pickup?</label>
+            <select id="order-type">
+              <option value="pickup">Self Pickup</option>
+              <option value="delivery">Fast Delivery (Kigali)</option>
+            </select>
+          </div>
+          <div class="form-group" id="address-group" style="display: none;">
+            <label>Delivery Location / Address</label>
+            <input type="text" id="order-address" placeholder="e.g. Nyarutarama, St 123">
+          </div>
+          <button type="submit" class="btn btn-primary w-full">Confirm Order</button>
+        </form>
+      </div>
+    </div>
 
     <script type="module" src="./src/main.js"></script>
     <a href="https://wa.me/250784670863" class="whatsapp-float" target="_blank">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-</a>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </a>
 
   </body>
 </html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Washington Shop</title>
+    <link rel="stylesheet" href="./src/style.css">
+    <style>
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--glass-border);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar .logo {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .admin-nav {
+            list-style: none;
+            flex-grow: 1;
+        }
+        
+        .admin-nav li {
+            margin-bottom: 10px;
+        }
+        
+        .admin-nav button {
+            width: 100%;
+            text-align: left;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+        }
+        
+        .admin-nav button:hover, .admin-nav button.active {
+            background: var(--glass-bg);
+            color: var(--accent-gold);
+        }
+        
+        .main-content {
+            padding: 40px 60px;
+            overflow-y: auto;
+        }
+        
+        .view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        /* Orders Table */
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .order-table th {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .order-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: rgba(241, 196, 15, 0.1); color: #f1c40f; }
+        .status-completed { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+        
+        /* Gallery Grid */
+        .admin-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .admin-gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .admin-gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .admin-gallery-item .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(230, 57, 70, 0.9);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        
+        .admin-gallery-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .sidebar-footer {
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        @media (max-width: 992px) {
+            .admin-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body class="bg-primary">
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="logo">WASHINGTON ADMIN</div>
+            <nav>
+                <ul class="admin-nav">
+                    <li><button class="active" onclick="switchView('orders')">📦 Orders</button></li>
+                    <li><button onclick="switchView('products')">🛍️ Products</button></li>
+                    <li><button onclick="switchView('insights')">🧠 Procurement Insights</button></li>
+                    <li><button onclick="switchView('gallery')">🖼️ Gallery & Events</button></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="index.html" class="btn btn-primary btn-sm w-full" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span>🏠</span> Back to Shop
+                </a>
+                <button class="btn btn-outline btn-sm w-full" onclick="handleLogout()" style="font-size: 0.8rem; opacity: 0.7;">Logout</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <!-- Orders View -->
+            <div id="view-orders" class="admin-view">
+                <div class="view-header">
+                    <h1>Manage Orders</h1>
+                    <button class="btn btn-primary btn-sm" onclick="refreshOrders()">Refresh</button>
+                </div>
+                
+                <div class="card">
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Items & Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products View -->
+            <div id="view-products" class="admin-view" style="display: none;">
+                <div class="view-header">
+                    <h1>Manage Inventory</h1>
+                    <button class="btn btn-primary btn-sm" onclick="showProductModal()">+ Add Product</button>
+                </div>
+
+                <div class="card">
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>IMG</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price (RWF)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-list">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Insights View -->
+            <div id="view-insights" class="admin-view" style="display: none;">
+                <div class="view-header">
+                    <h1>Procurement Insights</h1>
+                    <p>Data-driven suggestions for your next stock-up</p>
+                </div>
+
+                <div class="insights-grid">
+                    <div class="card">
+                        <h3>🔥 Top Selling Products</h3>
+                        <p>Based on all completed orders</p>
+                        <br>
+                        <div id="top-products-list">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>📈 Demand Analysis</h3>
+                        <p id="procurement-advice">Analyzing orders to give you the best advice...</p>
+                    </div>
+                </div>
+            </div>
+
+                <div class="card">
+                    <h3>Upload New Picture</h3>
+                    <p>Promote new recipes or upcoming events</p>
+                    <br>
+                    <div class="upload-zone" id="upload-zone">
+                        <span>Click or Drag to Upload Image</span>
+                        <input type="file" id="file-input" hidden accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Short Description</label>
+                        <input type="text" id="img-desc" placeholder="e.g. New Special Burger Launch!">
+                    </div>
+                    <button class="btn btn-primary" id="upload-btn">Upload Content</button>
+                </div>
+
+                <div class="card">
+                    <h3>Current Content</h3>
+                    <br>
+                    <div class="admin-gallery" id="gallery-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            <h2 id="product-modal-title">Add Product</h2>
+            <form id="product-form">
+                <input type="hidden" id="edit-product-id">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="prod-name" required placeholder="e.g. Primus Big">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="prod-category">
+                        <option value="alcoholic">Alcoholic Drink</option>
+                        <option value="non-alcoholic">Non-Alcoholic Drink</option>
+                        <option value="frozen">Frozen Delight</option>
+                        <option value="food">Fast Food</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Image URL (Optional)</label>
+                    <input type="url" id="prod-image" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Price (RWF)</label>
+                    <input type="number" id="prod-price" required placeholder="e.g. 1500">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Save Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="./src/admin.js"></script>
+    <script>
+        // Inline view switcher for convenience
+        window.switchView = (view) => {
+            document.querySelectorAll('.admin-view').forEach(v => v.style.display = 'none');
+            document.getElementById(`view-${view}`).style.display = 'block';
+            
+            document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        };
+    </script>
+</body>
+</html>

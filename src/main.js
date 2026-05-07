@@ -60,17 +60,216 @@ document.addEventListener('DOMContentLoaded', () => {
         fadeObserver.observe(el);
     });
 
-    // Image sliders
-    const sliders = document.querySelectorAll('.slider-container');
-    sliders.forEach(slider => {
-        const slides = slider.querySelectorAll('.slide');
-        if (slides.length <= 1) return;
-        
-        let currentSlide = 0;
-        setInterval(() => {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-        }, 3000);
+    // Modal Logic
+    const modal = document.getElementById('order-modal');
+    const orderBtn = document.querySelector('.btn-outline.btn-sm') || document.querySelector('a[href="tel:+250784670863"]');
+    const closeBtn = document.querySelector('.close-modal');
+
+    if (orderBtn) {
+        orderBtn.addEventListener('click', (e) => {
+            if (e.target.innerText.includes('Order')) {
+                e.preventDefault();
+                modal.classList.add('active');
+            }
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
     });
+
+    // Delivery Type Toggle
+    const orderType = document.getElementById('order-type');
+    const addressGroup = document.getElementById('address-group');
+    if (orderType && addressGroup) {
+        orderType.addEventListener('change', () => {
+            addressGroup.style.display = orderType.value === 'delivery' ? 'block' : 'none';
+            const addressInput = document.getElementById('order-address');
+            if (orderType.value === 'delivery') {
+                addressInput.required = true;
+            } else {
+                addressInput.required = false;
+            }
+        });
+    }
+
+    // --- Cart System ---
+    let cart = [];
+    let products = [];
+
+    const fetchProducts = async () => {
+        try {
+            const { getProducts } = await import('./api.js');
+            products = await getProducts();
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        }
+    };
+
+    fetchProducts();
+
+    const searchInput = document.getElementById('product-search');
+    const searchResults = document.getElementById('search-results');
+    const cartItemsList = document.getElementById('cart-items');
+    const cartTotalAmount = document.getElementById('cart-total-amount');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (!query) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+            if (filtered.length > 0) {
+                searchResults.innerHTML = filtered.map(p => `
+                    <div class="search-item" onclick="addToCart(${p.id}, '${p.name}', ${p.price})">
+                        <span>${p.name}</span>
+                        <span>${p.price.toLocaleString()} RWF</span>
+                    </div>
+                `).join('');
+                searchResults.style.display = 'block';
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+
+    window.addToCart = (id, name, price) => {
+        const existing = cart.find(item => item.id === id);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.push({ id, name, price, qty: 1 });
+        }
+        updateCartUI();
+        searchInput.value = '';
+        searchResults.style.display = 'none';
+    };
+
+    window.removeFromCart = (id) => {
+        cart = cart.filter(item => item.id !== id);
+        updateCartUI();
+    };
+
+    const updateCartUI = () => {
+        if (cart.length === 0) {
+            cartItemsList.innerHTML = '<p class="empty-msg">No items added yet</p>';
+            cartTotalAmount.innerText = '0 RWF';
+            return;
+        }
+
+        cartItemsList.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <div>
+                    <strong>${item.name}</strong> x ${item.qty}
+                </div>
+                <div>
+                    <span>${(item.price * item.qty).toLocaleString()} RWF</span>
+                    <span class="remove" onclick="removeFromCart(${item.id})">Remove</span>
+                </div>
+            </div>
+        `).join('');
+
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        cartTotalAmount.innerText = `${total.toLocaleString()} RWF`;
+    };
+
+    // Order Submission
+    const orderForm = document.getElementById('order-form');
+    if (orderForm) {
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (cart.length === 0) {
+                alert('Please add at least one item to your cart.');
+                return;
+            }
+
+            const submitBtn = orderForm.querySelector('button');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Processing...';
+
+            const phoneDigits = document.getElementById('order-phone').value;
+            const fullPhone = '+250' + phoneDigits;
+            const customerName = document.getElementById('order-name').value;
+            const type = document.getElementById('order-type').value;
+            const address = document.getElementById('order-address').value;
+
+            const itemsString = cart.map(item => `${item.name} (${item.qty})`).join(', ');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            const orderData = {
+                customerName,
+                phone: phoneDigits,
+                items: `${itemsString} | Total: ${total} RWF`,
+                type,
+                address: type === 'delivery' ? address : 'Self Pickup'
+            };
+
+            try {
+                const { createOrder } = await import('./api.js');
+                await createOrder(orderData);
+                
+                const whatsappMessage = `Hello Washington! New Order from ${customerName}:\n\n` +
+                    `🛒 Items: ${itemsString}\n` +
+                    `💰 Total: ${total.toLocaleString()} RWF\n` +
+                    `🚚 Type: ${type.toUpperCase()}\n` +
+                    `${type === 'delivery' ? `📍 Address: ${address}\n` : ''}` +
+                    `📞 Contact: ${fullPhone}`;
+                
+                const whatsappUrl = `https://wa.me/250784670863?text=${encodeURIComponent(whatsappMessage)}`;
+                
+                alert('Order saved! Redirecting to WhatsApp...');
+                window.open(whatsappUrl, '_blank');
+                
+                orderForm.reset();
+                cart = [];
+                updateCartUI();
+                if (addressGroup) addressGroup.style.display = 'none';
+                modal.classList.remove('active');
+            } catch (error) {
+                console.error(error);
+                alert('Error placing order.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Confirm Order';
+            }
+        });
+    }
+
+    // Dynamic Gallery
+    const loadGallery = async () => {
+        const galleryGrid = document.getElementById('dynamic-gallery');
+        if (!galleryGrid) return;
+
+        try {
+            const { getGallery } = await import('./api.js');
+            const items = await getGallery();
+            
+            if (items.length > 0) {
+                galleryGrid.innerHTML = items.map(item => `
+                    <div class="product-item glass fade-in">
+                        <img src="${item.url}" alt="${item.description}" />
+                        <div class="product-info">
+                            <h3>Recipe / Event</h3>
+                            <span>${item.description}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading gallery:', error);
+        }
+    };
+
+    loadGallery();
 });
