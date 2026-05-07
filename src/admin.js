@@ -10,7 +10,8 @@ import {
     createProduct,
     updateProduct,
     deleteProduct,
-    uploadProductImage
+    uploadProductImage,
+    subscribeToNewOrders
 } from './api.js';
 
 // Auth Protection
@@ -194,12 +195,47 @@ window.handleDeleteProduct = async (id) => {
     }
 };
 
+// --- Notifications ---
+const requestNotificationPermission = async () => {
+    if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        console.log('Notification permission:', permission);
+    }
+};
+
+const playNotificationSound = () => {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    audio.play().catch(e => console.log('Audio play blocked:', e));
+};
+
+const notifyNewOrder = (order) => {
+    playNotificationSound();
+    
+    if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('🔔 New Order Received!', {
+            body: `${order.customer_name} ordered: ${order.items}`,
+            icon: '/assets/logo.png' // Adjust icon path if needed
+        });
+    }
+    
+    // Refresh the list immediately
+    window.refreshOrders();
+};
+
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
     window.refreshOrders();
     window.refreshGallery();
     window.refreshProducts();
     window.refreshInsights();
+    
+    requestNotificationPermission();
+
+    // Subscribe to realtime orders
+    subscribeToNewOrders((newOrder) => {
+        console.log('New order received via realtime:', newOrder);
+        notifyNewOrder(newOrder);
+    });
 
     const productForm = document.getElementById('product-form');
     if (productForm) {

@@ -219,17 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { createOrder } = await import('./api.js');
                 await createOrder(orderData);
                 
-                const whatsappMessage = `Hello Washington! New Order from ${customerName}:\n\n` +
-                    `🛒 Items: ${itemsString}\n` +
-                    `💰 Total: ${total.toLocaleString()} RWF\n` +
-                    `🚚 Type: ${type.toUpperCase()}\n` +
-                    `${type === 'delivery' ? `📍 Address: ${address}\n` : ''}` +
-                    `📞 Contact: ${fullPhone}`;
-                
-                const whatsappUrl = `https://wa.me/250784670863?text=${encodeURIComponent(whatsappMessage)}`;
-                
-                alert('Order saved! Redirecting to WhatsApp...');
-                window.open(whatsappUrl, '_blank');
+                alert('Order placed successfully! Washington has been notified and will process your order shortly.');
                 
                 orderForm.reset();
                 cart = [];

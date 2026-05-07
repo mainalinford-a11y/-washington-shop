@@ -1,5 +1,18 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+// Realtime: subscribe to new orders (for admin push notifications)
+export const subscribeToNewOrders = (callback) => {
+    const channel = supabase
+        .channel('orders-realtime')
+        .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'orders' },
+            (payload) => callback(payload.new)
+        )
+        .subscribe();
+    return channel;
+};
+
 const SUPABASE_URL = 'https://bnkibplwmycspqiiuzkq.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_lpjhwjAfUnAmX7IpRa8_iA_D_WrO-Vf'; // Using the key provided
 
