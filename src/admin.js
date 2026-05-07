@@ -9,7 +9,8 @@ import {
     getProducts,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    uploadProductImage
 } from './api.js';
 
 // Auth Protection
@@ -173,7 +174,16 @@ window.editProduct = (id, name, price, category, imageUrl) => {
     document.getElementById('prod-name').value = name;
     document.getElementById('prod-price').value = price;
     document.getElementById('prod-category').value = category;
-    document.getElementById('prod-image').value = imageUrl || '';
+    
+    const preview = document.getElementById('product-img-preview');
+    if (imageUrl) {
+        document.getElementById('prod-image-url').value = imageUrl;
+        preview.style.display = 'block';
+        preview.querySelector('img').src = imageUrl;
+    } else {
+        document.getElementById('prod-image-url').value = '';
+        preview.style.display = 'none';
+    }
     document.getElementById('product-modal-title').innerText = 'Edit Product';
 };
 
@@ -195,22 +205,58 @@ document.addEventListener('DOMContentLoaded', () => {
     if (productForm) {
         productForm.onsubmit = async (e) => {
             e.preventDefault();
+            const submitBtn = productForm.querySelector('button');
             const id = document.getElementById('edit-product-id').value;
-            const productData = {
-                name: document.getElementById('prod-name').value,
-                price: parseFloat(document.getElementById('prod-price').value),
-                category: document.getElementById('prod-category').value,
-                image_url: document.getElementById('prod-image').value
-            };
+            const file = document.getElementById('prod-image-file').files[0];
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Uploading...';
 
-            if (id) {
-                await updateProduct(id, productData);
-            } else {
-                await createProduct(productData);
+            let imageUrl = document.getElementById('prod-image-url').value;
+
+            try {
+                if (file) {
+                    imageUrl = await uploadProductImage(file);
+                }
+
+                const productData = {
+                    name: document.getElementById('prod-name').value,
+                    price: parseFloat(document.getElementById('prod-price').value),
+                    category: document.getElementById('prod-category').value,
+                    image_url: imageUrl
+                };
+
+                if (id) {
+                    await updateProduct(id, productData);
+                } else {
+                    await createProduct(productData);
+                }
+
+                closeProductModal();
+                window.refreshProducts();
+            } catch (error) {
+                console.error(error);
+                alert('Failed to save product. Make sure the "products" storage bucket is created in Supabase.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Save Product';
             }
+        };
+    }
 
-            closeProductModal();
-            window.refreshProducts();
+    const prodImageFile = document.getElementById('prod-image-file');
+    if (prodImageFile) {
+        prodImageFile.onchange = (e) => {
+            const file = e.target.files[0];
+            const preview = document.getElementById('product-img-preview');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    preview.style.display = 'block';
+                    preview.querySelector('img').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         };
     }
 
