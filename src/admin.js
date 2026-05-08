@@ -12,6 +12,11 @@ import {
     deleteProduct,
     uploadProductImage,
     subscribeToNewOrders
+    ,
+    changePassword,
+    setSecurityAnswers,
+    isSecurityConfigured,
+    resetPasswordWithAnswers
 } from './api.js';
 
 // Auth Protection
@@ -340,5 +345,59 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsDataURL(file);
         };
+    }
+
+    // --- Security handlers ---
+    const changePassForm = document.getElementById('change-pass-form');
+    if (changePassForm) {
+        changePassForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('change-pass-btn');
+            btn.disabled = true; btn.innerText = 'Updating...';
+            try {
+                const cur = document.getElementById('current-pass').value;
+                const nw = document.getElementById('new-pass').value;
+                await changePassword(cur, nw);
+                alert('Password changed successfully');
+                changePassForm.reset();
+            } catch (err) {
+                alert(err.message || 'Failed to change password');
+            } finally {
+                btn.disabled = false; btn.innerText = 'Change Password';
+            }
+        });
+    }
+
+    const secSetupForm = document.getElementById('sec-setup-form');
+    if (secSetupForm) {
+        // Disable setup if already configured
+        (async () => {
+            try {
+                const configured = await isSecurityConfigured('admin');
+                if (configured) {
+                    secSetupForm.querySelectorAll('input, button').forEach(i => i.disabled = true);
+                    secSetupForm.insertAdjacentHTML('beforeend', '<p style="color:var(--text-secondary)">Security questions already configured.</p>');
+                }
+            } catch (e) { console.log(e); }
+        })();
+
+        secSetupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('setup-sec-btn');
+            btn.disabled = true; btn.innerText = 'Saving...';
+            try {
+                const a1 = document.getElementById('ans-q1').value;
+                const a2 = document.getElementById('ans-q2').value;
+                const a3 = document.getElementById('ans-q3').value;
+                await setSecurityAnswers('admin', { q1: a1, q2: a2, q3: a3 });
+                alert('Security answers saved. They are stored hashed and cannot be viewed later.');
+                secSetupForm.reset();
+                secSetupForm.querySelectorAll('input, button').forEach(i => i.disabled = true);
+            } catch (err) {
+                alert(err.message || 'Failed to save security answers');
+            } finally {
+                btn.disabled = false; btn.innerText = 'Save Security Answers';
+            }
+        });
     }
 });

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Recover Account | Washington Shop</title>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card glass fade-in">
+            <h1>Recover Account</h1>
+            <p>Answer your security questions to reset the admin password.</p>
+
+            <form id="recover-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="admin">
+                </div>
+                <div class="form-group">
+                    <label>Name of first child</label>
+                    <input type="text" id="q1" required placeholder="Answer">
+                </div>
+                <div class="form-group">
+                    <label>Primary school</label>
+                    <input type="text" id="q2" required placeholder="Answer">
+                </div>
+                <div class="form-group">
+                    <label>Name of spouse</label>
+                    <input type="text" id="q3" required placeholder="Answer">
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newpass" required placeholder="New password">
+                </div>
+                <button class="btn btn-primary w-full">Reset Password</button>
+            </form>
+
+            <a href="login.html" class="back-home">← Back to Sign In</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { resetPasswordWithAnswers } from './src/api.js';
+
+        const form = document.getElementById('recover-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'Verifying...';
+
+            const username = document.getElementById('username').value.trim();
+            const q1 = document.getElementById('q1').value;
+            const q2 = document.getElementById('q2').value;
+            const q3 = document.getElementById('q3').value;
+            const newpass = document.getElementById('newpass').value;
+
+            try {
+                await resetPasswordWithAnswers(username, { q1, q2, q3 }, newpass);
+                alert('Password has been reset. You can now sign in with the new password.');
+                window.location.href = 'login.html';
+            } catch (err) {
+                alert(err.message || 'Verification failed');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Reset Password';
+            }
+        });
+    </script>
+</body>
+</html>
