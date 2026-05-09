@@ -5,6 +5,9 @@ import { defineConfig } from 'vite'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
+  server: {
+    allowedHosts: ['easily-hurricane-casket.ngrok-free.dev']
+  },
   build: {
     rollupOptions: {
       input: {

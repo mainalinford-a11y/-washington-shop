@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forgot Password | Washington Shop</title>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card glass fade-in">
+            <h1>Forgot Password</h1>
+            <p>Enter your admin username to request a password reset token.</p>
+
+            <form id="forgot-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="admin">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Request Reset Token</button>
+            </form>
+
+            <a href="login.html" class="back-home">← Back to Sign In</a>
+            <a href="recover.html" class="back-home">Recover with security questions</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { requestPasswordReset } from './src/api.js';
+
+        const form = document.getElementById('forgot-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            btn.disabled = true;
+            btn.innerText = 'Processing...';
+            const username = document.getElementById('username').value;
+            try {
+                const token = await requestPasswordReset(username);
+                // Since there's no email in this demo, show the token and a link to reset page
+                const msg = `Reset token: ${token}\n\nOpen reset.html and paste the token to set a new password. The token expires in 15 minutes.`;
+                alert(msg);
+                window.location.href = 'reset.html';
+            } catch (err) {
+                alert(err.message || 'Error');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Request Reset Token';
+            }
+        });
+    </script>
+</body>
+</html>
