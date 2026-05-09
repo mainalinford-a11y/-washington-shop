@@ -347,6 +347,19 @@ header nav {
   border-top: 1px solid var(--glass-border);
 }
 
+.footer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.accreditation {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  letter-spacing: 0.5px;
+}
+
 .admin-link {
   color: var(--text-secondary);
   text-decoration: none;
