@@ -262,4 +262,42 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loadGallery();
+
+    // --- Map Initialization ---
+    const initMap = () => {
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) return;
+
+        // Kigali, Rwanda coordinates
+        const kigali = [-1.9441, 30.0619];
+        
+        const map = L.map('map', {
+            center: kigali,
+            zoom: 13,
+            scrollWheelZoom: false
+        });
+
+        // Use a premium dark theme for the map
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+        // Custom Gold Icon for the marker
+        const goldIcon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background-color: var(--accent-gold); width: 15px; height: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px var(--accent-gold);"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+        });
+
+        L.marker(kigali, { icon: goldIcon })
+            .addTo(map)
+            .bindPopup('<b style="color: #333;">Washington Shop</b><br>Kigali, Rwanda')
+            .openPopup();
+    };
+
+    // Initialize map after a slight delay to ensure container is ready
+    setTimeout(initMap, 500);
 });

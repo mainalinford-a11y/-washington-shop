@@ -12,6 +12,7 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   --section-padding: 100px 20px;
+  --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -318,20 +319,11 @@ header nav {
 }
 
 .map-mockup {
-  background: #1a1a1a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.glass-map {
-  padding: 20px 40px;
-  font-weight: 600;
-  color: var(--accent-gold);
-  border: 1px solid var(--accent-gold);
-  border-radius: 10px;
-  background: rgba(212, 175, 55, 0.1);
+  height: 450px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-premium);
 }
 
 @media (max-width: 992px) {
