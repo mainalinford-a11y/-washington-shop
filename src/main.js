@@ -268,8 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const mapContainer = document.getElementById('map');
         if (!mapContainer) return;
 
-        // Kigali, Rwanda coordinates
-        const kigali = [-1.9441, 30.0619];
+        // 91 KG 14 Ave, Kigali coordinates
+        const kigali = [-1.9253858, 30.0551139];
         
         const map = L.map('map', {
             center: kigali,
