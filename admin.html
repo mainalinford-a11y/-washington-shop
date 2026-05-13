@@ -162,8 +162,18 @@
         }
 
         @media (max-width: 992px) {
-            .admin-layout { grid-template-columns: 1fr; }
-            .sidebar { display: none; }
+            .admin-layout { display: flex; flex-direction: column; }
+            .sidebar { padding: 15px; border-right: none; border-bottom: 1px solid var(--glass-border); flex-direction: column; }
+            .sidebar .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 0 !important; margin-bottom: 15px; }
+            .sidebar .sidebar-header img { height: 40px !important; margin-bottom: 0 !important; }
+            .sidebar .sidebar-header h2 { font-size: 1.1rem !important; margin: 0; }
+            .admin-nav { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
+            .admin-nav::-webkit-scrollbar { height: 4px; }
+            .admin-nav::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 4px; }
+            .admin-nav li { margin-bottom: 0; flex-shrink: 0; }
+            .admin-nav button { padding: 10px 15px; white-space: nowrap; }
+            .sidebar-footer { display: flex; gap: 10px; padding-top: 10px; flex-direction: row; }
+            .sidebar-footer > * { margin-bottom: 0 !important; flex: 1; justify-content: center; }
             .main-content { padding: 20px; }
         }
     </style>
@@ -191,47 +201,6 @@
                 <button class="btn btn-outline btn-sm w-full" onclick="handleLogout()" style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">Logout</button>
                 <div class="accreditation" style="text-align: center; font-size: 0.7rem;">
                     Made and managed by <br><span class="text-gold">Goldmine Systems LTD 2026</span>
-                </div>
-            </div>
-            <!-- Security View (change password + setup security questions) -->
-            <div id="view-security" class="admin-view" style="display: none;">
-                <div class="view-header">
-                    <h1>Security</h1>
-                </div>
-
-                <div class="card">
-                    <h3>Change Password</h3>
-                    <form id="change-pass-form">
-                        <div class="form-group">
-                            <label>Current Password</label>
-                            <input type="password" id="current-pass" required>
-                        </div>
-                        <div class="form-group">
-                            <label>New Password</label>
-                            <input type="password" id="new-pass" required>
-                        </div>
-                        <button class="btn btn-primary" id="change-pass-btn">Change Password</button>
-                    </form>
-                </div>
-
-                <div class="card">
-                    <h3>Security Questions (one-time setup)</h3>
-                    <p>Provide answers that can be used to recover your account if you forget the password. These answers are stored hashed and cannot be retrieved.</p>
-                    <form id="sec-setup-form">
-                        <div class="form-group">
-                            <label>Name of first child</label>
-                            <input type="text" id="ans-q1" placeholder="Answer" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Primary school</label>
-                            <input type="text" id="ans-q2" placeholder="Answer" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Name of spouse</label>
-                            <input type="text" id="ans-q3" placeholder="Answer" required>
-                        </div>
-                        <button class="btn btn-primary" id="setup-sec-btn">Save Security Answers</button>
-                    </form>
                 </div>
             </div>
         </aside>
@@ -310,6 +279,12 @@
                 </div>
             </div>
 
+            <!-- Gallery View -->
+            <div id="view-gallery" class="admin-view" style="display: none;">
+                <div class="view-header">
+                    <h1>Gallery & Events</h1>
+                </div>
+
                 <div class="card">
                     <h3>Upload New Picture</h3>
                     <p>Promote new recipes or upcoming events</p>
@@ -331,6 +306,48 @@
                     <div class="admin-gallery" id="gallery-list">
                         <!-- Populated by JS -->
                     </div>
+                </div>
+            </div>
+
+            <!-- Security View (change password + setup security questions) -->
+            <div id="view-security" class="admin-view" style="display: none;">
+                <div class="view-header">
+                    <h1>Security</h1>
+                </div>
+
+                <div class="card">
+                    <h3>Change Password</h3>
+                    <form id="change-pass-form">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="current-pass" required>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="new-pass" required>
+                        </div>
+                        <button class="btn btn-primary" id="change-pass-btn">Change Password</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Security Questions (one-time setup)</h3>
+                    <p>Provide answers that can be used to recover your account if you forget the password. These answers are stored hashed and cannot be retrieved.</p>
+                    <form id="sec-setup-form">
+                        <div class="form-group">
+                            <label>Name of first child</label>
+                            <input type="text" id="ans-q1" placeholder="Answer" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Primary school</label>
+                            <input type="text" id="ans-q2" placeholder="Answer" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Name of spouse</label>
+                            <input type="text" id="ans-q3" placeholder="Answer" required>
+                        </div>
+                        <button class="btn btn-primary" id="setup-sec-btn">Save Security Answers</button>
+                    </form>
                 </div>
             </div>
         </main>
